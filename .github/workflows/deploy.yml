@@ -1,0 +1,22 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t rxsentinel-backend:${{ github.sha }} ./backend
+
+      - name: Build frontend image
+        run: docker build -t rxsentinel-frontend:${{ github.sha }} ./frontend
+
+      # Push-to-registry and ECS/K8s rollout steps are deployment-target
+      # specific (ECR + ECS service update, or a Helm upgrade) — left as a
+      # follow-up once the target environment in infra/terraform is live,
+      # rather than guessing a registry/cluster name here.

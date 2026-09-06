@@ -1,0 +1,24 @@
+version: "3.9"
+# Production overrides: no bind mounts, no --reload, resource limits.
+# Intended to be layered: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  backend:
+    volumes: []
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1g
+
+  worker:
+    volumes: []
+    command: celery -A app.workers.celery_app worker --loglevel=warning --concurrency=4
+
+  frontend:
+    volumes: []
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: nginx -g "daemon off;"

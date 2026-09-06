@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rxsentinel-backend
+  labels:
+    app: rxsentinel-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: rxsentinel-backend
+  template:
+    metadata:
+      labels:
+        app: rxsentinel-backend
+    spec:
+      containers:
+        - name: backend
+          image: rxsentinel-backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: rxsentinel-backend-secrets
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rxsentinel-backend
+spec:
+  selector:
+    app: rxsentinel-backend
+  ports:
+    - port: 80
+      targetPort: 8000
