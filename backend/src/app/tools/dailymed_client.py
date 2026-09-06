@@ -18,7 +18,7 @@ async def fetch_spl_by_rxcui(rxcui: str) -> dict | None:
 
     try:
         data = await get_json(url, params=params)
-    except Exception:  # noqa: BLE001
+    except Exception: 
         logger.exception("DailyMed lookup failed for rxcui=%s", rxcui)
         return None
 

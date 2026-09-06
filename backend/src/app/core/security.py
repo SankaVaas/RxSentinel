@@ -23,7 +23,7 @@ def decode_and_verify_token(token: str, settings) -> dict:
             key="",
             options={"verify_signature": False, "verify_aud": False},
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         raise ValueError(f"Invalid token: {exc}") from exc
 
     return claims

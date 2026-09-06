@@ -28,7 +28,7 @@ async def check_interaction(rxcui_a: str, rxcui_b: str) -> dict | None:
 
     try:
         data = await get_json(url, params=params)
-    except Exception:  # noqa: BLE001
+    except Exception: 
         logger.exception("RxNorm interaction lookup failed for %s/%s", rxcui_a, rxcui_b)
         return None
 

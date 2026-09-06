@@ -24,7 +24,7 @@ async def fetch_label_warnings(rxcui_a: str, rxcui_b: str) -> list[dict]:
         params = {"search": f"openfda.rxcui:{rxcui}", "limit": 1}
         try:
             data = await get_json(url, params=params)
-        except Exception:  # noqa: BLE001
+        except Exception: 
             logger.exception("OpenFDA label lookup failed for rxcui=%s", rxcui)
             continue
 
