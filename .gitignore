@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+frontend/.vite/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# DB / data
+*.sqlite3
+pgdata/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.backup

@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:v0.5.1
+        env:
+          POSTGRES_USER: rxsentinel
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: rxsentinel_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rxsentinel"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend deps
+        working-directory: backend
+        run: pip install -e ".[dev]"
+
+      - name: Lint
+        working-directory: backend
+        run: ruff check app
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://rxsentinel:test@localhost:5432/rxsentinel_test
+          REDIS_URL: redis://localhost:6379/0
+          ANTHROPIC_API_KEY: test-key-not-real
+        run: pytest -v
+
+  agent-eval:
+    runs-on: ubuntu-latest
+    needs: backend-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        working-directory: backend
+        run: pip install -e ".[dev]"
+      - name: Run agent eval harness
+        working-directory: eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python run_eval.py --report-path eval_report.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval/eval_report.md
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install deps
+        working-directory: frontend
+        run: npm install
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+      - name: Test
+        working-directory: frontend
+        run: npm run test
+      - name: Build
+        working-directory: frontend
+        run: npm run build
