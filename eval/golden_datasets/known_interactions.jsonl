@@ -1,0 +1,4 @@
+{"drug_a": "warfarin", "rxcui_a": "855332", "drug_b": "aspirin", "rxcui_b": "1191", "expected_severity": "high", "notes": "Well-established bleeding risk; should always surface, not be critique-cleared."}
+{"drug_a": "simvastatin", "rxcui_a": "36567", "drug_b": "clarithromycin", "rxcui_b": "21212", "expected_severity": "contraindicated", "notes": "CYP3A4 inhibition -> rhabdomyolysis risk; must be escalated, never auto-cleared."}
+{"drug_a": "lisinopril", "rxcui_a": "29046", "drug_b": "spironolactone", "rxcui_b": "9997", "expected_severity": "moderate", "notes": "Hyperkalemia risk, more relevant if eGFR reduced -- good test of patient-context-aware critique."}
+{"drug_a": "metformin", "rxcui_a": "6809", "drug_b": "lisinopril", "rxcui_b": "29046", "expected_severity": "low", "notes": "Minimal interaction; a good negative control -- critique agent should keep this low, not overreach."}
