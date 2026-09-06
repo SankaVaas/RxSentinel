@@ -4,7 +4,6 @@ Uses Anthropic-compatible embedding provider (Voyage AI is Anthropic's
 recommended embeddings partner). Kept as a thin wrapper so the provider can
 be swapped without touching retriever.py.
 """
-from app.config import get_settings
 
 
 async def embed_text(text: str) -> list[float]:

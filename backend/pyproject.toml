@@ -24,6 +24,10 @@ dependencies = [
     "tenacity>=9.0",
 ]
 
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
@@ -35,3 +39,9 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.setuptools]
+packages = ["app", "alembic"]
+
+[tool.setuptools.package-dir]
+"" = "src"

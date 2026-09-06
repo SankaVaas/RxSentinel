@@ -1,10 +1,14 @@
 import enum
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import TimestampedBase
+
+if TYPE_CHECKING:
+    from app.models.interaction_finding import InteractionFinding
 
 
 class RunStatus(str, enum.Enum):

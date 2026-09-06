@@ -1,7 +1,6 @@
 """pgvector-backed similarity search over ingested literature/label chunks."""
 import logging
 
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)

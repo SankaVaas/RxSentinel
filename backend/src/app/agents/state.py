@@ -6,7 +6,6 @@ schema (rather than a free-form dict) is what makes the audit trail
 against this state is exactly what a reviewer or the AgentTraceViewer needs.
 """
 from typing import Annotated, TypedDict
-from uuid import UUID
 
 import operator
 

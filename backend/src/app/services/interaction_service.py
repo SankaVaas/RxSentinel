@@ -6,12 +6,12 @@ import from app.agents directly.
 """
 import logging
 import time
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.graph import build_graph
-from app.models.agent_run import AgentRun, AgentRunStep, RunStatus
+from app.models.agent_run import AgentRun, RunStatus
 from app.models.interaction_finding import InteractionFinding
 from app.services.audit_service import record_step
 
