@@ -13,7 +13,6 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-
 REASONING_SYSTEM_PROMPT = """\
 You are a clinical pharmacology reasoning assistant. You are given:
 - a candidate drug-drug interaction pair
@@ -47,32 +46,32 @@ async def run(state: AgentState) -> dict:
             "patient_context": state["patient_context"],
         }
 
-        response = await client.chat.completions.create(
-            model=settings.groq_model,
-            max_tokens=500,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": REASONING_SYSTEM_PROMPT},
-                {"role": "user", "content": json.dumps(user_payload)},
-            ],
-        )
-        raw_text = response.choices[0].message.content
         try:
+            response = await client.chat.completions.create(
+                model=settings.groq_model,
+                max_tokens=800,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": REASONING_SYSTEM_PROMPT},
+                    {"role": "user", "content": json.dumps(user_payload)},
+                ],
+            )
+            raw_text = response.choices[0].message.content
             parsed = json.loads(raw_text)
-        except json.JSONDecodeError:
-            logger.warning("Reasoning agent returned non-JSON for %s", candidate["drug_pair"])
-            continue
 
-        findings.append(
-            {
-                "drug_pair": candidate["drug_pair"],
-                "severity": parsed["severity"],
-                "mechanism": parsed["mechanism"],
-                "clinical_recommendation": parsed["clinical_recommendation"],
-                "evidence": candidate["evidence"],
-                "confidence": float(parsed["confidence"]),
-            }
-        )
+            findings.append(
+                {
+                    "drug_pair": candidate["drug_pair"],
+                    "severity": parsed["severity"],
+                    "mechanism": parsed["mechanism"],
+                    "clinical_recommendation": parsed["clinical_recommendation"],
+                    "evidence": candidate["evidence"],
+                    "confidence": float(parsed["confidence"]),
+                }
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception("Reasoning agent failed for %s; skipping this pair", candidate["drug_pair"])
+            continue
 
     logger.info("Reasoning agent produced %s findings", len(findings))
     return {"reasoned_findings": findings}

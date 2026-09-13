@@ -18,11 +18,30 @@ apiClient.interceptors.request.use((config) => {
 export interface Patient {
   id: string;
   mrn: string;
+  first_name: string;
+  last_name: string;
   date_of_birth: string;
   sex: string;
   egfr: number | null;
   hepatic_impairment: string | null;
   allergies: string | null;
+  active_medication_count: number;
+}
+
+export interface PatientListResponse {
+  total: number;
+  results: Patient[];
+}
+
+export interface PatientCreatePayload {
+  mrn: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  sex: string;
+  egfr?: number | null;
+  hepatic_impairment?: string | null;
+  allergies?: string | null;
 }
 
 export interface Medication {
@@ -32,6 +51,11 @@ export interface Medication {
   dose: string | null;
   frequency: string | null;
   active: boolean;
+}
+
+export interface DrugSearchResult {
+  rxcui: string;
+  name: string;
 }
 
 export type Severity = "low" | "moderate" | "high" | "contraindicated";
@@ -70,14 +94,25 @@ export interface AgentRunStep {
 
 // --- API calls ---
 
+export const listPatients = (params: { q?: string; limit?: number; offset?: number }) =>
+  apiClient.get<PatientListResponse>("/patients", { params }).then((r) => r.data);
+
 export const getPatient = (patientId: string) =>
   apiClient.get<Patient>(`/patients/${patientId}`).then((r) => r.data);
+
+export const createPatient = (payload: PatientCreatePayload) =>
+  apiClient.post<Patient>("/patients", payload).then((r) => r.data);
 
 export const listMedications = (patientId: string) =>
   apiClient.get<Medication[]>(`/patients/${patientId}/medications`).then((r) => r.data);
 
-export const addMedication = (patientId: string, payload: { rxcui: string; dose?: string; frequency?: string }) =>
-  apiClient.post<Medication>(`/patients/${patientId}/medications`, payload).then((r) => r.data);
+export const addMedication = (
+  patientId: string,
+  payload: { rxcui: string; dose?: string; frequency?: string }
+) => apiClient.post<Medication>(`/patients/${patientId}/medications`, payload).then((r) => r.data);
+
+export const searchDrugs = (q: string) =>
+  apiClient.get<DrugSearchResult[]>("/medications/search", { params: { q } }).then((r) => r.data);
 
 export const runInteractionCheck = (patientId: string) =>
   apiClient

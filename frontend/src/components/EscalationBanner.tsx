@@ -5,11 +5,11 @@ export default function EscalationBanner({ findings }: { findings: InteractionFi
   if (escalated.length === 0) return null;
 
   return (
-    <div className="rounded-md border border-red-300 bg-red-50 p-4 mb-4">
-      <p className="font-semibold text-red-900">
+    <div className="rounded-lg border border-severity-contraindicated-border bg-severity-contraindicated-bg text-white p-4 mb-4">
+      <p className="font-semibold">
         {escalated.length} urgent interaction{escalated.length > 1 ? "s" : ""} require immediate review
       </p>
-      <ul className="mt-1 text-sm text-red-800 list-disc list-inside">
+      <ul className="mt-1 text-sm list-disc list-inside space-y-0.5">
         {escalated.map((f) => (
           <li key={f.id}>
             {f.drug_pair.join(" + ")} — {f.mechanism}

@@ -19,7 +19,7 @@ eval:
 	docker compose exec backend python /app/../eval/run_eval.py
 
 lint:
-	docker compose exec backend ruff check src tests
+	docker compose exec backend ruff check app
 
 fmt:
-	docker compose exec backend ruff format src tests
+	docker compose exec backend ruff format app
