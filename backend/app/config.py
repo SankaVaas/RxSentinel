@@ -22,17 +22,16 @@ class Settings(BaseSettings):
 
     # Drug reference / interaction data
     rxnorm_api_base: str = "https://rxnav.nlm.nih.gov/REST"
+    openfda_api_base: str = "https://api.fda.gov"
     drug_interactions_csv_path: str = "data/drug_interactions.csv"
 
-    # Auth
-    oidc_issuer: str | None = None
-    oidc_audience: str | None = None
-    oidc_client_id: str | None = None
+    # Auth (local JWT)
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 1440
 
     # Observability
     otel_exporter_otlp_endpoint: str | None = None
-    langfuse_public_key: str | None = None
-    langfuse_secret_key: str | None = None
 
     # CORS
     cors_origins: str = "http://localhost:5173"

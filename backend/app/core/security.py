@@ -1,29 +1,28 @@
-"""OIDC token verification and RBAC helpers.
+"""Password hashing and JWT issuance/verification for local auth."""
+from datetime import datetime, timedelta, timezone
 
-In production, JWKS should be fetched from `{settings.oidc_issuer}/.well-known/jwks.json`
-and cached. This module stubs the verification call site so the auth
-integration point is explicit and swappable (Auth0 / Keycloak / Cognito).
-"""
-from jose import jwt
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def decode_and_verify_token(token: str, settings) -> dict:
-    """Decode and verify a bearer JWT against the configured OIDC issuer.
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
 
-    Raises ValueError on any validation failure.
-    """
-    if not settings.oidc_issuer:
-        raise ValueError("OIDC is not configured on this deployment")
 
+def verify_password(password: str, hashed: str) -> bool:
+    return pwd_context.verify(password, hashed)
+
+
+def create_access_token(subject: str, roles: list[str], settings) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
+    payload = {"sub": subject, "roles": roles, "exp": expire}
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_access_token(token: str, settings) -> dict:
     try:
-        # NOTE: replace `key=` with the fetched JWKS in production; this is a
-        # structural placeholder so downstream code has a single call site.
-        claims = jwt.decode(
-            token,
-            key="",
-            options={"verify_signature": False, "verify_aud": False},
-        )
-    except Exception as exc:  # noqa: BLE001
-        raise ValueError(f"Invalid token: {exc}") from exc
-
-    return claims
+        return jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+    except JWTError as exc:
+        raise ValueError(f"Invalid or expired token: {exc}") from exc

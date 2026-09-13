@@ -8,6 +8,8 @@ import logging
 import time
 from uuid import UUID, uuid4
 
+from app.core.metrics import agent_findings_total, agent_runs_total
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -60,10 +62,12 @@ async def run_interaction_check(db: AsyncSession, patient_id: UUID, triggered_by
                 step_index += 1
 
         agent_run.status = RunStatus.COMPLETED
+        agent_runs_total.labels(status="completed").inc()
 
     except Exception:
         logger.exception("Agent run %s failed", agent_run.id)
         agent_run.status = RunStatus.FAILED
+        agent_runs_total.labels(status="failed").inc()
         await db.commit()
         raise
 
@@ -81,6 +85,7 @@ async def run_interaction_check(db: AsyncSession, patient_id: UUID, triggered_by
                 critique_notes=finding.get("critique_notes"),
             )
         )
+        agent_findings_total.labels(severity=finding["severity"], status=finding["status"]).inc()
 
     await db.commit()
     result = await db.execute(
